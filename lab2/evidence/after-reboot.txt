@@ -1,0 +1,15 @@
+● acs730-web.service - ACS730 Week 2 Web Application (nginx)
+     Loaded: loaded (/etc/systemd/system/acs730-web.service; enabled; preset: disabled)
+     Active: active (running) since Wed 2026-09-30 12:08:43 UTC; 7min ago
+    Process: 1742 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+   Main PID: 1752 (nginx)
+      Tasks: 3 (limit: 1059)
+     Memory: 7.1M
+        CPU: 32ms
+     CGroup: /system.slice/acs730-web.service
+             ├─1752 "nginx: master process /usr/sbin/nginx"
+             ├─1753 "nginx: worker process"
+             └─1754 "nginx: worker process"
+
+Sep 30 12:08:43 ip-172-31-27-197.ec2.internal systemd[1]: Starting acs730-web.service - ACS730 Week 2 Web Application (nginx)...
+Sep 30 12:08:43 ip-172-31-27-197.ec2.internal systemd[1]: Started acs730-web.service - ACS730 Week 2 Web Application (nginx).
