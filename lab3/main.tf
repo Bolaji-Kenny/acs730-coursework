@@ -8,13 +8,18 @@ terraform {
     }
   }
 
-  backend "s3" {
-    bucket       = "acs730-tfstate-224364172046"
-    key          = "lab3/terraform.tfstate"
-    region       = "us-east-1"
-    encrypt      = true
-    use_lockfile = true
-  }
+
+   backend "s3" {
+     bucket       = "acs730-tfstate-224364172046"
+     key          = "lab3/terraform.tfstate"
+     region       = "us-east-1"
+     encrypt      = true
+     use_lockfile = true
+   }
+
+
+
+
 }
 
 provider "aws" {

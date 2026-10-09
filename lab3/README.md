@@ -28,3 +28,19 @@ leak — they go stale within hours regardless.
 
 
 
+
+  
+### Experiment 2: Remove the backend
+
+Prediction: commenting out the S3 backend block and running
+`terraform init -migrate-state` would copy my existing state into a local
+`terraform.tfstate` file, since Terraform always preserves known resources
+when switching backends.
+
+Result: no local state file was created at all — `terraform show` printed
+"No state." This makes sense in hindsight: I had already run
+`terraform destroy` in Part 8, so the remote S3 state held zero resources.
+There was nothing to migrate, so Terraform had nothing to write locally.
+Had I run this experiment *before* destroying, a local terraform.tfstate
+file would have appeared holding the one aws_ssm_parameter resource.
+
