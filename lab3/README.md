@@ -13,3 +13,18 @@ session-scoped credentials from Vocareum, pushed into GitHub Actions secrets
 by refresh-gha-creds.sh. The protection here is not secrecy but time: these
 credentials expire when the lab session ends, which limits the damage if they
 leak — they go stale within hours regardless.
+
+
+## Operations
+
+- ExpiredToken on a deploy: your lab session ended. Start a new one, re-run
+  refresh-gha-creds.sh, re-run the job. Nothing in the repository changes.
+- "Input required and not supplied: aws-region": the AWS_REGION variable does
+  not exist — not a credential problem. Run the refresh script, or
+  gh variable set AWS_REGION --body us-east-1.
+- Terraform version used: 1.10.3
+
+## Experiments
+
+
+
