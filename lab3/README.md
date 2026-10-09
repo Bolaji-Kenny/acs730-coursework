@@ -44,3 +44,22 @@ There was nothing to migrate, so Terraform had nothing to write locally.
 Had I run this experiment *before* destroying, a local terraform.tfstate
 file would have appeared holding the one aws_ssm_parameter resource.
 
+
+### Experiment 3: Give the apply step a pull request
+
+Prediction: changing the apply step's condition from
+`github.event_name == 'push'` to `always()` would let the apply job run
+on a pull_request event too. Since opening a PR requires no merge
+permission, anyone who can open a PR against this repo could trigger a
+real `terraform apply` using the repository's AWS secrets, with no
+review gate at all.
+
+Result: confirmed. On PR #4 (branch lab3-experiment3), the terraform
+apply step ran with real AWS session credentials and logged
+"Apply complete! Resources: 0 added, 0 changed, 0 destroyed." It showed
+zero changes only because my state already matched my code — if the PR
+branch had added or changed a resource, that would have been applied
+too, without anyone approving or merging anything. This is why the
+`if: github.event_name == 'push'` gate (restricted to main, which only
+accepts merges) is the real security boundary in this pipeline, not
+branch protection alone.
