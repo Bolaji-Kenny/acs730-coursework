@@ -18,3 +18,7 @@ def test_health():
 def test_unknown_route_returns_404():
     client = app.test_client()
     assert client.get("/nope").status_code == 404
+
+
+def test_deliberately_failing():
+    assert False, "Deliberate failure to demonstrate the required status check"
