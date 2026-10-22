@@ -1,0 +1,53 @@
+name: docker-build
+
+on:
+  workflow_call:
+    inputs:
+      context:
+        description: Docker build context directory
+        type: string
+        required: true
+      artifact-name:
+        description: Name of the uploaded image artifact
+        type: string
+        default: lab4-image
+    outputs:
+      tag:
+        description: Short commit SHA used as the image tag
+        value: ${{ jobs.build.outputs.tag }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compute image tag
+        id: meta
+        run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ inputs.context }}
+          load: true
+          tags: lab4:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Save image to a file
+        run: docker save lab4:ci | gzip > image.tar.gz
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: image.tar.gz
+          retention-days: 1
