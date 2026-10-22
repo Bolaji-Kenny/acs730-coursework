@@ -2,8 +2,14 @@ name: lab3-deploy
 
 on:
   pull_request:
+    paths:
+      - "lab3/**"
+      - ".github/workflows/lab3-deploy.yml"
   push:
     branches: [ main ]
+    paths:
+      - "lab3/**"
+      - ".github/workflows/lab3-deploy.yml"
 
 concurrency:
   group: lab3-deploy-${{ github.repository }}
