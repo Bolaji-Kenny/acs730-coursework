@@ -1,0 +1,30 @@
+name: lab4-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "lab4/**"
+      - ".github/workflows/lab4-ci.yml"
+  pull_request:
+    paths:
+      - "lab4/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t lab4:ci lab4
+
+      - name: Smoke test
+        run: |
+          docker run -d -p 8000:8000 --name smoke lab4:ci
+          sleep 3
+          curl --fail localhost:8000/health
