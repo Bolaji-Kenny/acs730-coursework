@@ -55,7 +55,7 @@ variable "public_subnets" {
 variable "ingress_ports" {
   description = "TCP ports the web security group accepts."
   type        = list(number)
-  default     = [80, 8000]
+  default     = [8000]
 }
 
 variable "ingress_cidr" {
