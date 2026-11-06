@@ -1,0 +1,24 @@
+# describe-vpcs after terraform destroy (LocalStack)
+--------------------------------------------------
+|                  DescribeVpcs                  |
++------------------------------------------------+
+||                     Vpcs                     ||
+|+-----------------------+----------------------+|
+||  CidrBlock            |  172.31.0.0/16       ||
+||  DhcpOptionsId        |  default             ||
+||  InstanceTenancy      |  default             ||
+||  IsDefault            |  True                ||
+||  OwnerId              |  000000000000        ||
+||  State                |  available           ||
+||  VpcId                |  vpc-067bbfdb        ||
+|+-----------------------+----------------------+|
+|||           CidrBlockAssociationSet          |||
+||+----------------+---------------------------+||
+|||  AssociationId |  vpc-cidr-assoc-71aa16de  |||
+|||  CidrBlock     |  172.31.0.0/16            |||
+||+----------------+---------------------------+||
+||||              CidrBlockState              ||||
+|||+---------------+--------------------------+|||
+||||  State        |  associated              ||||
+|||+---------------+--------------------------+|||
+# VPCs tagged Project=acs730-lab5 (expect none):
