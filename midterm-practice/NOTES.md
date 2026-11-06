@@ -6,4 +6,4 @@
      file and the credential string in your latest commit is not sufficient
      by itself. -->
 
-TODO
+Deleting the .tfstate file and the credential in a new commit does not remove them from Git history, so anyone with access to the repository can still recover them from earlier commits; the credential must be revoked and rotated, and the history rewritten (e.g. with git filter-repo) if it must be purged.
