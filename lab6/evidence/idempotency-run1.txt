@@ -1,0 +1,39 @@
+
+PLAY [Configure the ACS730 Lab 6 web servers] **********************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [i-00877ca3689b55306]
+ok: [i-00b6ff9f209ac5b6f]
+
+TASK [webserver : Install the packages the application needs] ******************
+ok: [i-00b6ff9f209ac5b6f]
+ok: [i-00877ca3689b55306]
+
+TASK [webserver : Create the unprivileged service account] *********************
+changed: [i-00877ca3689b55306]
+changed: [i-00b6ff9f209ac5b6f]
+
+TASK [webserver : Create the application directory] ****************************
+changed: [i-00877ca3689b55306]
+changed: [i-00b6ff9f209ac5b6f]
+
+TASK [webserver : Render the landing page from a template] *********************
+changed: [i-00877ca3689b55306]
+changed: [i-00b6ff9f209ac5b6f]
+
+TASK [webserver : Install the systemd unit from a template] ********************
+changed: [i-00b6ff9f209ac5b6f]
+changed: [i-00877ca3689b55306]
+
+TASK [webserver : Enable the service and make sure it is running] **************
+changed: [i-00b6ff9f209ac5b6f]
+changed: [i-00877ca3689b55306]
+
+RUNNING HANDLER [webserver : Restart acs730-web] *******************************
+changed: [i-00b6ff9f209ac5b6f]
+changed: [i-00877ca3689b55306]
+
+PLAY RECAP *********************************************************************
+i-00877ca3689b55306        : ok=8    changed=6    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+i-00b6ff9f209ac5b6f        : ok=8    changed=6    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

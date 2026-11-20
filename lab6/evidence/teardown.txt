@@ -1,0 +1,75 @@
+    ] [90m-> null[0m[0m
+  [31m-[0m[0m web_public_ips      = [
+      [31m-[0m[0m "3.85.30.245",
+      [31m-[0m[0m "100.53.4.41",
+    ] [90m-> null[0m[0m
+[0m[1maws_instance.web[1]: Destroying... [id=i-00b6ff9f209ac5b6f][0m[0m
+[0m[1maws_instance.web[0]: Destroying... [id=i-080f7b1e7dc4f354a][0m[0m
+[0m[1maws_instance.web[1]: Still destroying... [id=i-00b6ff9f209ac5b6f, 10s elapsed][0m[0m
+[0m[1maws_instance.web[0]: Still destroying... [id=i-080f7b1e7dc4f354a, 10s elapsed][0m[0m
+[0m[1maws_instance.web[0]: Still destroying... [id=i-080f7b1e7dc4f354a, 20s elapsed][0m[0m
+[0m[1maws_instance.web[1]: Still destroying... [id=i-00b6ff9f209ac5b6f, 20s elapsed][0m[0m
+[0m[1maws_instance.web[1]: Still destroying... [id=i-00b6ff9f209ac5b6f, 30s elapsed][0m[0m
+[0m[1maws_instance.web[0]: Still destroying... [id=i-080f7b1e7dc4f354a, 30s elapsed][0m[0m
+[0m[1maws_instance.web[0]: Destruction complete after 30s[0m
+[0m[1maws_instance.web[1]: Destruction complete after 30s[0m
+[0m[1maws_security_group.web: Destroying... [id=sg-06dc09976b04f7487][0m[0m
+[0m[1maws_security_group.web: Destruction complete after 1s[0m
+[0m[1m[32m
+Destroy complete! Resources: 3 destroyed.
+[0m{
+    "TerminatingInstances": [
+        {
+            "InstanceId": "i-03f92836e41dd73a9",
+            "CurrentState": {
+                "Code": 32,
+                "Name": "shutting-down"
+            },
+            "PreviousState": {
+                "Code": 16,
+                "Name": "running"
+            }
+        },
+        {
+            "InstanceId": "i-0fb75ea7b82b9880a",
+            "CurrentState": {
+                "Code": 32,
+                "Name": "shutting-down"
+            },
+            "PreviousState": {
+                "Code": 16,
+                "Name": "running"
+            }
+        }
+    ]
+}
+{
+    "Return": true,
+    "GroupId": "sg-054256e86fec708e1"
+}
+snapshot behind the AMI: snap-06c0e25e51e3ce512
+{
+    "Return": true,
+    "DeleteSnapshotResults": []
+}
+remove_bucket: acs730-lab6-ssm-224364172046
+
+== EC2 instances
+   i-01183a05d47b447cd  running  t3.medium  acs730-workstation   (your workstation -- keep this)
+
+== Your AMIs (and their snapshots)
+
+== Unattached EBS volumes
+
+== Snapshots you own
+
+== Non-default security groups
+   sg-09d56df46eb3525f4  launch-wizard-1
+      -> aws ec2 delete-security-group --group-id sg-09d56df46eb3525f4
+
+== Terraform state files that still track resources
+   ./midterm-practice/terraform/terraform.tfstate  tracks 1 resource(s)
+      -> cd ./midterm-practice/terraform && terraform destroy
+
+Review the items above. This script deleted nothing.
+
