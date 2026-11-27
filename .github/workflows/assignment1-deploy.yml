@@ -1,0 +1,150 @@
+name: assignment1-deploy
+
+# pull_request: validate everything, plan staging (no apply).
+# push to main: staging applies automatically, then prod waits on the
+#               reviewer gate configured on the "prod" GitHub Environment.
+# Evidence, report and scripts are excluded so committing them never triggers a deploy.
+on:
+  pull_request:
+    paths:
+      - 'assignment1/**'
+      - '!assignment1/evidence/**'
+      - '!assignment1/REPORT.md'
+      - '!assignment1/scripts/**'
+      - '.github/workflows/assignment1-deploy.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assignment1/**'
+      - '!assignment1/evidence/**'
+      - '!assignment1/REPORT.md'
+      - '!assignment1/scripts/**'
+      - '.github/workflows/assignment1-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Two runs must never apply at once.
+concurrency:
+  group: assignment1-deploy
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  TF_IN_AUTOMATION: "true"
+
+jobs:
+  validate:
+    name: validate (${{ matrix.env }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        env: [dev, staging, prod]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.10.5
+          terraform_wrapper: false
+      - name: fmt
+        run: terraform fmt -check -recursive assignment1/terraform
+      - name: init (no backend) and validate
+        working-directory: assignment1/terraform/${{ matrix.env }}
+        run: |
+          terraform init -backend=false -input=false
+          terraform validate
+
+  plan-staging:
+    name: plan staging (pull request)
+    if: github.event_name == 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.10.5
+          terraform_wrapper: false
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+      - name: plan
+        working-directory: assignment1/terraform/staging
+        run: |
+          terraform init -input=false
+          terraform plan -input=false
+
+  deploy-staging:
+    name: deploy staging (automatic)
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.10.5
+          terraform_wrapper: false
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+      - name: init, apply and keep the log
+        working-directory: assignment1/terraform/staging
+        run: |
+          {
+            date
+            terraform init -input=false
+            terraform apply -input=false -auto-approve
+            terraform output
+          } 2>&1 | tee "$GITHUB_WORKSPACE/staging-apply.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: staging-apply
+          path: staging-apply.txt
+
+  deploy-prod:
+    name: deploy prod (waits for approval)
+    if: github.event_name != 'pull_request'
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.10.5
+          terraform_wrapper: false
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+      - name: init, apply and keep the log
+        working-directory: assignment1/terraform/prod
+        run: |
+          {
+            date
+            terraform init -input=false
+            terraform apply -input=false -auto-approve
+            terraform output
+          } 2>&1 | tee "$GITHUB_WORKSPACE/prod-apply.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: prod-apply
+          path: prod-apply.txt
