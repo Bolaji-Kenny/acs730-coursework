@@ -40,7 +40,7 @@ module "app" {
     b = { cidr_block = "10.30.2.0/24", az_index = 1 }
   }
   instance_type              = "t3.small"
-  create_artifact_bucket     = true
+  create_artifact_bucket     = false
   db_password_parameter_name = "/acs730/assignment1/prod/db_password"
   alarm_cpu_threshold        = 70
   alarm_evaluation_periods   = 2
