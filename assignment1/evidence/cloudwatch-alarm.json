@@ -1,0 +1,92 @@
+{
+    "MetricAlarms": [
+        {
+            "AlarmName": "acs730-a1-dev-cpu-high",
+            "AlarmArn": "arn:aws:cloudwatch:us-east-1:224364172046:alarm:acs730-a1-dev-cpu-high",
+            "AlarmDescription": "Average CPU on the dev web instance is at or above 80%.",
+            "AlarmConfigurationUpdatedTimestamp": "2026-11-27T22:58:44.694000+00:00",
+            "ActionsEnabled": true,
+            "OKActions": [],
+            "AlarmActions": [],
+            "InsufficientDataActions": [],
+            "StateValue": "OK",
+            "StateReason": "Threshold Crossed: 1 datapoint [0.0038475010134707 (27/11/26 22:55:00)] was not greater than or equal to the threshold (80.0).",
+            "StateReasonData": "{\"version\":\"1.0\",\"queryDate\":\"2026-11-27T23:00:16.194+0000\",\"startDate\":\"2026-11-27T22:55:00.000+0000\",\"statistic\":\"Average\",\"period\":300,\"recentDatapoints\":[0.0038475010134707],\"threshold\":80.0,\"evaluatedDatapoints\":[{\"timestamp\":\"2026-11-27T22:55:00.000+0000\",\"sampleCount\":1.0,\"value\":0.0038475010134707}]}",
+            "StateUpdatedTimestamp": "2026-11-27T23:00:16.196000+00:00",
+            "MetricName": "CPUUtilization",
+            "Namespace": "AWS/EC2",
+            "Statistic": "Average",
+            "Dimensions": [
+                {
+                    "Name": "InstanceId",
+                    "Value": "i-029ccffb673aa3b2b"
+                }
+            ],
+            "Period": 300,
+            "EvaluationPeriods": 2,
+            "Threshold": 80.0,
+            "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+            "TreatMissingData": "missing",
+            "StateTransitionedTimestamp": "2026-11-27T23:00:16.196000+00:00"
+        },
+        {
+            "AlarmName": "acs730-a1-prod-cpu-high",
+            "AlarmArn": "arn:aws:cloudwatch:us-east-1:224364172046:alarm:acs730-a1-prod-cpu-high",
+            "AlarmDescription": "Average CPU on the prod web instance is at or above 70%.",
+            "AlarmConfigurationUpdatedTimestamp": "2026-11-28T00:02:30.065000+00:00",
+            "ActionsEnabled": true,
+            "OKActions": [],
+            "AlarmActions": [],
+            "InsufficientDataActions": [],
+            "StateValue": "OK",
+            "StateReason": "Threshold Crossed: 1 datapoint [15.671831893580974 (27/11/26 23:58:00)] was not greater than or equal to the threshold (70.0).",
+            "StateReasonData": "{\"version\":\"1.0\",\"queryDate\":\"2026-11-28T00:03:52.666+0000\",\"startDate\":\"2026-11-27T23:58:00.000+0000\",\"statistic\":\"Average\",\"period\":300,\"recentDatapoints\":[15.671831893580974],\"threshold\":70.0,\"evaluatedDatapoints\":[{\"timestamp\":\"2026-11-27T23:58:00.000+0000\",\"sampleCount\":2.0,\"value\":15.671831893580974}]}",
+            "StateUpdatedTimestamp": "2026-11-28T00:03:52.668000+00:00",
+            "MetricName": "CPUUtilization",
+            "Namespace": "AWS/EC2",
+            "Statistic": "Average",
+            "Dimensions": [
+                {
+                    "Name": "InstanceId",
+                    "Value": "i-0141e6cdd60ebc591"
+                }
+            ],
+            "Period": 300,
+            "EvaluationPeriods": 2,
+            "Threshold": 70.0,
+            "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+            "TreatMissingData": "missing",
+            "StateTransitionedTimestamp": "2026-11-28T00:03:52.668000+00:00"
+        },
+        {
+            "AlarmName": "acs730-a1-staging-cpu-high",
+            "AlarmArn": "arn:aws:cloudwatch:us-east-1:224364172046:alarm:acs730-a1-staging-cpu-high",
+            "AlarmDescription": "Average CPU on the staging web instance is at or above 80%.",
+            "AlarmConfigurationUpdatedTimestamp": "2026-11-27T23:33:59.839000+00:00",
+            "ActionsEnabled": true,
+            "OKActions": [],
+            "AlarmActions": [],
+            "InsufficientDataActions": [],
+            "StateValue": "OK",
+            "StateReason": "Threshold Crossed: 1 datapoint [0.0047904625819178 (27/11/26 23:30:00)] was not greater than or equal to the threshold (80.0).",
+            "StateReasonData": "{\"version\":\"1.0\",\"queryDate\":\"2026-11-27T23:35:24.155+0000\",\"startDate\":\"2026-11-27T23:30:00.000+0000\",\"statistic\":\"Average\",\"period\":300,\"recentDatapoints\":[0.0047904625819178],\"threshold\":80.0,\"evaluatedDatapoints\":[{\"timestamp\":\"2026-11-27T23:30:00.000+0000\",\"sampleCount\":1.0,\"value\":0.0047904625819178}]}",
+            "StateUpdatedTimestamp": "2026-11-27T23:35:24.157000+00:00",
+            "MetricName": "CPUUtilization",
+            "Namespace": "AWS/EC2",
+            "Statistic": "Average",
+            "Dimensions": [
+                {
+                    "Name": "InstanceId",
+                    "Value": "i-0c95a5984d4e51d73"
+                }
+            ],
+            "Period": 300,
+            "EvaluationPeriods": 2,
+            "Threshold": 80.0,
+            "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+            "TreatMissingData": "missing",
+            "StateTransitionedTimestamp": "2026-11-27T23:35:24.157000+00:00"
+        }
+    ],
+    "CompositeAlarms": []
+}
