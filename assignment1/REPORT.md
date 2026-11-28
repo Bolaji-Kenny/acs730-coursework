@@ -192,7 +192,7 @@ However, for an AWS-only organization, the advantages of native identity managem
 ## 8. Teardown (Task 9)
 
 All three environments were destroyed with `assignment1/scripts/destroy-all.sh`, which writes
-`evidence/destroy-complete.txt`, deletes the out-of-band SSM parameters, and ends with `cleanup-check.sh`, which reported nothing running.
+`evidence/destroy-complete.txt`, deletes the out-of-band SSM parameters, and ends with `cleanup-check.sh`, which found no Assignment 1 resources left. It still lists my workstation (kept) and two items from earlier work that are not part of this assignment: a security group and a stale practice state file.
 
 ## Evidence index
 
