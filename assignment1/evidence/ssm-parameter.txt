@@ -1,0 +1,25 @@
+Sat Nov 28 00:14:17 UTC 2026
+== Terraform side: one data source, no resource ==
+assignment1/terraform/modules/webapp/main.tf:29:data "aws_ssm_parameter" "db_password" {
+assignment1/terraform/modules/webapp/outputs.tf:49:  value       = data.aws_ssm_parameter.db_password.arn
+assignment1/terraform/modules/webapp/outputs.tf:54:  value       = data.aws_ssm_parameter.db_password.version
+== staging: parameter Terraform read ==
+"arn:aws:ssm:us-east-1:224364172046:parameter/acs730/assignment1/staging/db_password"
+1
+------------------------------------------------------------------------
+|                             GetParameter                             |
++------------------------------------------+---------------+-----------+
+|                   Name                   |     Type      |  Version  |
++------------------------------------------+---------------+-----------+
+|  /acs730/assignment1/staging/db_password |  SecureString |  1        |
++------------------------------------------+---------------+-----------+
+== prod: parameter Terraform read ==
+"arn:aws:ssm:us-east-1:224364172046:parameter/acs730/assignment1/prod/db_password"
+1
+---------------------------------------------------------------------
+|                           GetParameter                            |
++---------------------------------------+---------------+-----------+
+|                 Name                  |     Type      |  Version  |
++---------------------------------------+---------------+-----------+
+|  /acs730/assignment1/prod/db_password |  SecureString |  1        |
++---------------------------------------+---------------+-----------+

@@ -5,10 +5,11 @@ Repository: https://github.com/Bolaji-Kenny/acs730-coursework
 
 ## Introduction
 
-> **TODO: write this in your own words (about 150 words), then delete this note.**
-> Cover: what the assignment builds (one reusable module, three environments, a gated pipeline,
-> an SSM-backed secret and an alarm); that everything runs on the AWS Academy Learner Lab with
-> session-scoped credentials instead of long-lived keys; and what you set out to learn.
+This assignment extends the Terraform infrastructure from Week 7 into a reusable, secure, multi-environment deployment. I refactored the network and web server into a single Terraform module and called it from separate dev, staging and prod directories. Each directory has its own state key in a shared S3 backend, so the environments cannot overwrite one another.
+
+Deployment runs through GitHub Actions and GitHub Environments. Staging applies automatically when a change merges to main, and production waits for a manual reviewer and deploys only from main. The pipeline uses only the session-scoped AWS Academy credentials, which I moved from repository level to environment-scoped secrets, with no long-lived AWS keys anywhere. I also wrote the OIDC trust policy I would use in a real AWS account.
+
+The application reads a placeholder database password from AWS Systems Manager Parameter Store, and a CloudWatch alarm monitors CPU in each environment. Working through a real deployment in the Learner Lab, I examined the practical benefits and limits of this approach and compared it with an AWS-native pipeline for an organization that runs only on AWS.
 
 ## 1. Reusable module and environment directories (Tasks 1 and 2)
 
@@ -24,7 +25,7 @@ reference and looked up with data sources (region, availability zones, AMI), wit
 | `vpc_cidr` | each environment gets its own non-overlapping range (10.10, 10.20, 10.30) |
 | `public_subnets` | map of subnets per environment; the key is the stable resource address |
 | `instance_type` | prod uses `t3.small`, the others `t3.micro`; validated to small sizes for the $50 budget |
-| `create_artifact_bucket` | only prod creates the bucket (count gate) |
+| `create_artifact_bucket` | optional bucket behind a `count` gate; off in all three environments (see section 4) |
 | `db_password_parameter_name` | each environment reads its own parameter |
 | `alarm_cpu_threshold`, `alarm_period`, `alarm_evaluation_periods` | alarm sensitivity differs per environment |
 | `ingress_rules`, `tags` | rules default to HTTP only (port 22 is rejected by a validation); extra tags per environment |
@@ -125,6 +126,11 @@ expire when the lab session ends, and they are stored at environment scope so th
 A merge to `main` applied `staging` automatically with no human step, then the `prod` job waited on the reviewer gate. I took
 `prod-approval-pending.png` while it waited, approved, and took `prod-approval-approved.png`; the prod apply then completed.
 
+**What went wrong, and the fix.** The first prod run created everything except the optional artifact bucket, then failed: after creating a bucket the AWS provider reads
+its object-lock settings, and the Learner Lab service control policy explicitly denies `s3:GetBucketObjectLockConfiguration`. I removed the half-created bucket from state, destroyed
+the prod resources, set `create_artifact_bucket = false` in prod (the `count` gate working as designed; the bucket was never a requirement), and ran the pipeline again. The second
+prod run, after a fresh approval, created all 10 resources. The approval screenshots and `prod-apply.txt` come from that second run; `staging-apply.txt` is from the first run.
+
 Evidence: `staging-apply.txt`, `prod-apply.txt`, `prod-approval-pending.png`, `prod-approval-approved.png`.
 
 ## 5. Secrets management with SSM Parameter Store (Task 6)
@@ -157,25 +163,36 @@ Evidence: `cloudwatch-alarm.json` and `cloudwatch-alarm.png`, captured after sev
 
 ## 7. Recommendation (Task 8)
 
-> **TODO: write this in your own words, one page, and finish with an actual choice (not "it depends"). Then delete this note.**
->
-> Question: for a team fully committed to AWS with no multi-cloud plans, would you recommend this GitHub Actions pipeline or an AWS-native
-> pipeline (CodePipeline, CodeBuild, CodeDeploy)? Use at least three concrete factors. Factors you can argue either way, using what you
-> actually saw in this assignment:
->
-> 1. **Where the identity lives.** Here: Academy session keys in GitHub environment secrets (in a real account, OIDC and no stored keys). AWS-native: the pipeline runs under an IAM
->    service role inside the account, so nothing leaves AWS.
-> 2. **Runner cost and patching.** GitHub-hosted runners are free for a public repo and patched by GitHub; self-hosted ones are yours to patch (you saw the risk in Lab 7). CodeBuild is billed per build minute and AWS patches it.
-> 3. **What the team already knows.** Workflows in the repository next to the code, versus CodePipeline stages defined in the console or CloudFormation.
-> 4. **The day you need VPC-internal access.** A hosted GitHub runner cannot reach a private cluster (Lab 7 Part 0); CodeBuild can run inside your VPC; GitHub needs a self-hosted runner for that.
-> 5. **Approvals and audit.** GitHub Environments reviewers versus CodePipeline manual approval actions with CloudTrail records.
->
-> "Industry standard" is not a factor.
+Although GitHub Actions successfully automated infrastructure deployment in this assignment, I would recommend an AWS-native pipeline using AWS CodePipeline and AWS CodeBuild for an organization fully committed to AWS with no multi-cloud plans. My recommendation is based on four main factors.
+
+**1. Security and identity management**
+
+During this assignment, the three temporary AWS credentials had to be refreshed for both staging and production whenever the Learner Lab session expired. In a real AWS account, OIDC federation would eliminate this manual process, and configuring the trust policy would be a one-time task. However, an AWS-native pipeline would use IAM service roles directly without relying on an external identity provider. This keeps the pipeline's deployment identity within AWS and allows permissions to be managed through the organization's existing IAM policies.
+
+**2. Integration with AWS services**
+
+Although Terraform can retrieve values from SSM Parameter Store and create CloudWatch alarms regardless of the pipeline used, an AWS-native pipeline provides more direct integration with AWS operational services. For example, EventBridge can trigger CodePipeline in response to AWS events, while CloudWatch can monitor pipeline activity and provide notifications when failures occur. This allows infrastructure deployment and operational monitoring to be managed within the same AWS ecosystem without requiring additional integration with an external CI/CD platform.
+
+**3. Governance and accountability**
+
+GitHub Actions provided effective deployment controls through environment-scoped secrets, branch restrictions, and manual production approval. However, GitHub reviewers are identified through GitHub accounts, whereas CodePipeline approvers act as IAM principals. AWS CloudTrail can record approval API calls against those principals, providing more direct accountability within AWS. With GitHub Actions, CloudTrail generally records AWS deployment activity against the assumed deployment role rather than the GitHub reviewer.
+
+The service control policy that blocked the optional S3 bucket during my production deployment would also restrict a CodeBuild role. Therefore, switching pipelines would not eliminate permission restrictions. Instead, it would allow deployment identities and approval permissions to be governed within the same AWS security framework.
+
+**4. Private network access**
+
+As demonstrated in Lab 7, a standard GitHub-hosted runner cannot directly access resources inside a private VPC subnet without additional network connectivity. A self-hosted runner inside the VPC is one possible solution, but it introduces maintenance, patching, and security responsibilities. CodeBuild can be configured to operate within the VPC, allowing it to communicate with private resources without maintaining a dedicated runner. Regarding cost, standard GitHub-hosted runners are free for public repositories, whereas CodeBuild charges for build usage beyond applicable free allowances.
+
+**Trade-offs and final decision**
+
+Moving away from GitHub Actions would mean giving up the convenience of maintaining workflow definitions alongside application code, familiar pull request integration, and a relatively straightforward initial setup. CodePipeline can require more configuration during implementation.
+
+However, for an AWS-only organization, the advantages of native identity management, centralized governance, operational integration, and private network access outweigh these disadvantages. Therefore, my final recommendation is AWS CodePipeline and AWS CodeBuild combined with Terraform.
 
 ## 8. Teardown (Task 9)
 
 All three environments were destroyed with `assignment1/scripts/destroy-all.sh`, which writes
-`evidence/destroy-complete.txt`, deletes the out-of-band SSM parameters, and ends with `cleanup-check.sh`, which reported nothing running.
+`evidence/destroy-complete.txt`, deletes the out-of-band SSM parameters, and ends with `cleanup-check.sh`, which found no Assignment 1 resources left. It still lists my workstation (kept) and two items from earlier work that are not part of this assignment: a security group and a stale practice state file.
 
 ## Evidence index
 
@@ -194,7 +211,9 @@ All three environments were destroyed with `assignment1/scripts/destroy-all.sh`,
 
 ## Conclusion
 
-> **TODO: write this in your own words (about 150 to 200 words), then delete this note.**
-> A summary alone earns about half. Say what you would change next time, what surprised you
-> (for example the staging-to-prod gate, the copied state key, the refresh command that succeeds but writes secrets nothing can read),
-> what a real account would do differently (OIDC, no session secrets), and one thing you now understand that you did not before.
+This assignment showed me that a working pipeline takes more than valid Terraform. State management, credential handling, deployment controls and the limits of the cloud account all decide whether a deployment succeeds.
+
+The most surprising problem was the production deployment failing after most of it had succeeded. Terraform created the VPC, instance and alarm, but the optional artifact bucket failed because the Learner Lab service control policy denies a read the AWS provider makes right after creating a bucket. That left a half-built environment. I removed the bucket from state, destroyed what had been created, turned the optional bucket off, and redeployed with a fresh approval. I also avoided two traps the assignment warned about: a copied backend key that makes environments share one state file, and a refresh script that succeeds while writing secrets no job can read. Checking the three state keys and the secret scopes before deploying is why neither happened.
+
+Next time I would check which API calls the Learner Lab denies before relying on a resource, and run a plan against production before the first approval. In a real AWS account I would use OIDC with the trust policy written in section 3, so there would be no session secrets to refresh. The biggest thing I now understand is that a failed apply leaves real resources and a partial state, so recovery means cleaning the state and redeploying, not just rerunning. The approval gate also holds production until a named reviewer acts, which gave me time to check the staging result first.
+
